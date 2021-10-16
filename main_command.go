@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 
+	"github.com/Zioyi/zocker/container"
 	log "github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
 )
@@ -15,7 +16,7 @@ var initCommand = cli.Command{
 		cmd := context.Args().Get(0)
 		log.Infof("command %s", cmd)
 		err := container.RunContainerInitProcess(cmd, nil)
-		return nil
+		return err
 	},
 }
 
