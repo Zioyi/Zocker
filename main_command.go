@@ -47,7 +47,7 @@ var runCommand = cli.Command{
 	},
 	Action: func(context *cli.Context) error {
 		if len(context.Args()) < 1 {
-			return fmt.Errorf("Missing container command")
+			return fmt.Errorf("missing container command")
 		}
 		var cmdArray []string
 		for _, arg := range context.Args() {
