@@ -22,7 +22,10 @@ func main() {
 	}
 
 	app.Before = func(context *cli.Context) error {
-		log.SetFormatter(&log.JSONFormatter{})
+		log.SetReportCaller(true)
+		log.SetFormatter(&log.TextFormatter{
+			TimestampFormat: "2006-01-02 15:12:04",
+		})
 
 		log.SetOutput(os.Stdout)
 		return nil
