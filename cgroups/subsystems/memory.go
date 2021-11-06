@@ -37,7 +37,7 @@ func (m *MemorySubSystem) Remove(cgroupPath string) error {
 	if err != nil {
 		return err
 	}
-	return os.Remove(subsysCgroupPath)
+	return os.RemoveAll(subsysCgroupPath)
 }
 
 func (m *MemorySubSystem) Apply(cgroupPath string, pid int) error {
