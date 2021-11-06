@@ -142,3 +142,89 @@ $ cd cgroup-test
 $ cat tasks | grep "3444"
 # 返回为空
 ```
+
+4. 通过 subsystem 限制 cgroup 中进程的资源。
+
+操作系统默认已为每一个 subsystem 创建了一个默认的 hierarchy，在`sys/fs/cgroup/`目录下
+```shell
+$ ls /sys/fs/cgroup
+blkio    cpu,cpuacct  freezer  net_cls           perf_event  systemd
+cpu      cpuset       hugetlb  net_cls,net_prio  pids        unified
+cpuacct  devices      memory   net_prio          rdma
+```
+可以看到内存子系统的 hierarchy 也在其中创建一个子cgroup
+``` shell
+$ cd /sys/fs/cgroup/memory
+$ sudo mkdir test-limit-memory && cd test-limit-memorysudo
+# 设置最大内存使用为 100MB
+$ sudo sh -c "echo "100m" > memory.limit_in_bytes"sudo sh -c "echo $$ > tasks"
+sudo sh -c "echo $$ > tasks"
+$ sudo sh -c "echo $$ > tasks"
+# 运行占用内存200MB 的 stress 经常
+$ stress --vm-bytes 200m --vm-keep -m 1
+```
+可以对比运行前后的内存剩余量，大概只减少了100MB
+```shell
+# 运行前
+$ top
+top - 12:04:12 up  6:45,  1 user,  load average: 1.87, 1.29, 1.06
+任务: 348 total,   1 running, 346 sleeping,   0 stopped,   1 zombie
+%Cpu(s):  1.3 us,  0.9 sy,  0.0 ni, 97.7 id,  0.0 wa,  0.0 hi,  0.1 si,  0.0 st
+MiB Mem :   5973.4 total,    210.8 free,   2820.9 used,   2941.8 buff/cache
+MiB Swap:    923.3 total,    921.9 free,      1.3 used.   2746.3 avail Mem 
+
+# 运行后
+$ top
+top - 12:04:57 up  6:45,  1 user,  load average: 2.25, 1.44, 1.12
+任务: 351 total,   3 running, 347 sleeping,   0 stopped,   1 zombie
+%Cpu(s): 34.3 us, 32.8 sy,  0.0 ni, 21.1 id,  4.9 wa,  0.0 hi,  6.9 si,  0.0 st
+MiB Mem :   5973.4 total,    118.6 free,   2956.7 used,   2898.1 buff/cache
+MiB Swap:    923.3 total,    817.7 free,    105.5 used.   2604.5 avail Mem 
+```
+说明 cgroup 的限制生效了
+
+## docker 中是怎样进行 cgroup 限制的
+首先运行一个被限制内存的容器
+```shell
+$ sudo docker pull redis:4
+$ sudo docker run -tid -m 100m redis:4
+d79f22eb11d22c56a90f88e0aeb3cfda7cbe9639e2ab0e8532003a695e375e8d
+```
+查看原来的内存子系统绑定的cgroup，会看到里面多了子cgroup, `docker` 
+```shell
+$ ls /sys/fs/cgroup/memory
+... docker
+...
+$ ls /sys/fs/cgroup/memory/docker
+cgroup.clone_children                                             memory.max_usage_in_bytes
+cgroup.event_control                                              memory.memsw.failcnt
+cgroup.procs                                                      memory.memsw.limit_in_bytes
+d79f22eb11d22c56a90f88e0aeb3cfda7cbe9639e2ab0e8532003a695e375e8d  memory.memsw.max_usage_in_bytes
+memory.failcnt                                                    memory.memsw.usage_in_bytes
+memory.force_empty                                                memory.move_charge_at_immigrate
+memory.kmem.failcnt                                               memory.numa_stat
+memory.kmem.limit_in_bytes                                        memory.oom_control
+memory.kmem.max_usage_in_bytes                                    memory.pressure_level
+memory.kmem.slabinfo                                              memory.soft_limit_in_bytes
+memory.kmem.tcp.failcnt                                           memory.stat
+memory.kmem.tcp.limit_in_bytes                                    memory.swappiness
+memory.kmem.tcp.max_usage_in_bytes                                memory.usage_in_bytes
+memory.kmem.tcp.usage_in_bytes                                    memory.use_hierarchy
+memory.kmem.usage_in_bytes                                        notify_on_release
+memory.limit_in_bytes                                             tasks
+```
+可以看到`docker`cgroup里面的`d79f22eb11d22c56a90f88e0aeb3cfda7cbe9639e2ab0e8532003a695e375e8d`cgroup 正好是我们
+刚才创建的容器 ID，那么看一下里面吧
+```shell
+$ cd /sys/fs/cgroup/memory/docker/d79f22eb11d22c56a90f88e0aeb3cfda7cbe9639e2ab0e8532003a695e375e8d
+$ cat memory.limit_in_bytes
+104857600cat
+# 正好是100MB
+```
+
+## 总结
+讲述了 cgroups 的原理，它是通过三个概念（cgroup、subsystem、hierarchy）进行组织和关联的，可以理解为
+3层结构，将进程关联在 cgroup 中，然后把 cgroup 与 hierarchy 关联，subsystem 再与 hierarchy 关联，从而在限制进程资源的基础上达到一定
+的复用能力。
+
+讲述了 docker 的具体实现方式，在使用 docker 时，也能从心中了然它时怎么做到对容器使用资源的限制的。
