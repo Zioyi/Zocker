@@ -2,12 +2,12 @@ package main
 
 import (
 	"fmt"
-	"strings"
+
+	log "github.com/sirupsen/logrus"
+	"github.com/urfave/cli"
 
 	"github.com/Zioyi/zocker/cgroups/subsystems"
 	"github.com/Zioyi/zocker/container"
-	log "github.com/sirupsen/logrus"
-	"github.com/urfave/cli"
 )
 
 var initCommand = cli.Command{
@@ -15,10 +15,7 @@ var initCommand = cli.Command{
 	Usage: "Init container process run user's process in container. Do not call is outside",
 	Action: func(context *cli.Context) error {
 		log.Infof("init come on")
-		command := context.Args().Get(0)
-		log.Infof("command %v", command)
-		cmdArray := strings.Split(command, " ")
-		err := container.RunContainerInitProcess(cmdArray, nil)
+		err := container.RunContainerInitProcess()
 		return err
 	},
 }
