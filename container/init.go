@@ -78,28 +78,36 @@ func setUpMount() {
 }
 
 func pivotRoot(root string) error {
-	// systemd 加入linux之后，mount namespace 就变成 shared by default，所以你必须
-	// 声明你要这个新的mount namespace独立。
+	/*
+		systemd 加入linux之后，mount namespace 就变成 shared by default，所以你必须声明你要这个新的mount namespace独立。
+	*/
 	if err := syscall.Mount("", "/", "", syscall.MS_PRIVATE|syscall.MS_REC, ""); err != nil {
 		return fmt.Errorf("mount new namespace error:%v", err)
 	}
+	/*
+		为了使当前的root系统和新的root系统不在同一个mount namespace中，我们把当新的root系统重新mount一下，
+		bind mount是把相同内容换了一个挂载点重新挂载
+	*/
 	if err := syscall.Mount(root, root, "bind", syscall.MS_BIND|syscall.MS_REC, ""); err != nil {
 		return fmt.Errorf("mount rootfs to itself error: %v", err)
 	}
-
+	// 创建 rootfs/.pivot_root 存储 old_root
 	pivotDir := filepath.Join(root, ".pivot_root")
 	if err := os.Mkdir(pivotDir, 0700); err != nil {
 		return err
 	}
-
+	// pivot_root 到新的rootfs，现在老的old_root是挂载到rootfs/.pivot_root
+	//
 	if err := syscall.PivotRoot(root, pivotDir); err != nil {
 		return fmt.Errorf("pivot_root %v", err)
 	}
+	// 修改当前的工作目录到根目录
 	if err := syscall.Chdir("/"); err != nil {
 		return fmt.Errorf("chdir / %v", err)
 	}
 
 	pivotDir = filepath.Join("/", ".pivot_root")
+	// unmount rootfs/.pivot_root
 	if err := syscall.Unmount(pivotDir, syscall.MNT_DETACH); err != nil {
 		return fmt.Errorf("unmount pivot_root dir %v", err)
 	}
