@@ -78,8 +78,13 @@ func setUpMount() {
 }
 
 func pivotRoot(root string) error {
+	// systemd 加入linux之后，mount namespace 就变成 shared by default，所以你必须
+	// 声明你要这个新的mount namespace独立。
+	if err := syscall.Mount("", "/", "", syscall.MS_PRIVATE|syscall.MS_REC, ""); err != nil {
+		return fmt.Errorf("mount new namespace error:%v", err)
+	}
 	if err := syscall.Mount(root, root, "bind", syscall.MS_BIND|syscall.MS_REC, ""); err != nil {
-		return fmt.Errorf("Mount rootfs to itself error: %v", err)
+		return fmt.Errorf("mount rootfs to itself error: %v", err)
 	}
 
 	pivotDir := filepath.Join(root, ".pivot_root")
