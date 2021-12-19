@@ -13,7 +13,7 @@
     - [x] 增加管道及环境变量识别 `tag: p3.3`
 - [ ] 构造镜像
     - [x] 使用 busybox 创建容器 `tag: p4.1`
-    - [ ] 使用 AUFS 包装 busybox
+    - [x] 使用 AUFS 包装 busybox `tag: p4.2`
     - [ ] 实现 volume 数据卷
     - [ ] 实现简单镜像打包
 - [ ] TBD
