@@ -14,7 +14,7 @@
 - [ ] 构造镜像
     - [x] 使用 busybox 创建容器 `tag: p4.1`
     - [x] 使用 AUFS 包装 busybox `tag: p4.2`
-    - [ ] 实现 volume 数据卷
+    - [x] 实现 volume 数据卷 `tag: p4.3`
     - [ ] 实现简单镜像打包
 - [ ] TBD
 
