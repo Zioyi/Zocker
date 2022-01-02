@@ -26,10 +26,14 @@ func NewParentProcess(tty bool, volume string) (*exec.Cmd, *os.File) {
 		cmd.Stderr = os.Stderr
 	}
 	cmd.ExtraFiles = []*os.File{readPipe}
-	mntURL := "/root/mnt/"
-	rootURL := "/root/"
-	NewWorkSpace(rootURL, mntURL, volume)
-	cmd.Dir = mntURL
+	if tty {
+		mntURL := "/root/mnt/"
+		rootURL := "/root/"
+		NewWorkSpace(rootURL, mntURL, volume)
+		cmd.Dir = mntURL
+	} else {
+		cmd.Dir = "/root/busybox"
+	}
 	return cmd, writePipe
 }
 

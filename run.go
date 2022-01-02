@@ -4,10 +4,11 @@ import (
 	"os"
 	"strings"
 
+	log "github.com/sirupsen/logrus"
+
 	"github.com/Zioyi/zocker/cgroups"
 	"github.com/Zioyi/zocker/cgroups/subsystems"
 	"github.com/Zioyi/zocker/container"
-	log "github.com/sirupsen/logrus"
 )
 
 func Run(tty bool, cmdArray []string, res *subsystems.ResourceConfig, volume string) {
@@ -26,10 +27,12 @@ func Run(tty bool, cmdArray []string, res *subsystems.ResourceConfig, volume str
 	cgroupManager.Apply(parent.Process.Pid)
 
 	sendInitCommand(cmdArray, writePipe)
-	_ = parent.Wait()
-	mntURL := "/root/mnt/"
-	rootURL := "/root/"
-	container.DeleteWorkSpace(rootURL, mntURL, volume)
+	if tty {
+		_ = parent.Wait()
+		mntURL := "/root/mnt/"
+		rootURL := "/root/"
+		container.DeleteWorkSpace(rootURL, mntURL, volume)
+	}
 	os.Exit(0)
 }
 
