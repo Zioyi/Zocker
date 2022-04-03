@@ -9,6 +9,23 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+var (
+	Running             string = "running"
+	Stop                string = "stopped"
+	Exit                string = "exited"
+	DefaultInfoLocation string = "/var/run/zocker/%s/"
+	ConfigName          string = "config.json"
+)
+
+type ContainerInfo struct {
+	Pid        string `json:"pid"`
+	Id         string `json:"id"`
+	Name       string `json:"name"`
+	Command    string `json:"command"`
+	CreateTime string `json:"create_time"`
+	Status     string `json:"status"`
+}
+
 func NewParentProcess(tty bool, volume string) (*exec.Cmd, *os.File) {
 	readPipe, writePipe, err := NewPipe()
 	if err != nil {
