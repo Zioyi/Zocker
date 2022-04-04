@@ -43,7 +43,7 @@ func Run(tty bool, cmdArray []string, res *subsystems.ResourceConfig, volume str
 	cgroupManager.Apply(parent.Process.Pid)
 
 	sendInitCommand(cmdArray, writePipe)
-	log.Infof("[zcoker] container name is %s\n", containerName)
+	log.Infof("[zocker] container name is %s\n", containerName)
 	if tty {
 		_ = parent.Wait()
 		mntURL := "/root/mnt/"
