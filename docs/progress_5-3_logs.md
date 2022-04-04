@@ -22,7 +22,7 @@ cmd.Stdout = file
 ```shell
 vagrant@vagrant-ubuntu-trusty-64:/vagrant_data/zocker$ sudo ./zocker run -d -name seven top
 INFO[0000]/vagrant_data/zocker/run.go:59 main.sendInitCommand() command all is top
-INFO[0000]/vagrant_data/zocker/run.go:46 main.Run() [zcoker] container name is seven
+INFO[0000]/vagrant_data/zocker/run.go:46 main.Run() [zocker] container name is seven
 ```
 然后查看日志，可以发现内容是一致变化的
 ```shell
