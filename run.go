@@ -62,7 +62,8 @@ func sendInitCommand(cmdArray []string, writePipe *os.File) {
 }
 
 func recordContainerInfo(containerPID int, commandArray []string, containerName string, id string) (string, error) {
-	createTime := time.Now().Format("2006-01-02 15:04:05")
+	var cstZone = time.FixedZone("CST", 8*3600)
+	createTime := time.Now().In(cstZone).Format("2006-01-02 15:04:05")
 	command := strings.Join(commandArray, " ")
 	containerInfo := &container.ContainerInfo{
 		Id:         id,

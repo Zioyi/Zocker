@@ -8,8 +8,8 @@ import (
 )
 
 const usage = `zocker is a simple container runtime implementation.
-			   The purpose of this project is to learn how docker works and how to write a docker by ourselves
-               Enjoy it, just fo fun.`
+	 The purpose of this project is to learn how docker works and how to write a docker by ourselves
+	 Enjoy it, just fo fun.`
 
 func main() {
 	app := cli.NewApp()
@@ -23,6 +23,7 @@ func main() {
 		listCommand,
 		logCommand,
 		execCommand,
+		stopCommand,
 	}
 
 	app.Before = func(context *cli.Context) error {
