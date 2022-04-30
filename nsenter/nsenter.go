@@ -14,7 +14,7 @@ __attribute__((constructor)) void enter_namespace(void) {
 		if (zocker_pid) {
 			fprintf(stdout, "got zocker_pid=%s\n", zocker_pid);
 		} else {
-			fprintf(stdout, "missing zocker_pid env skip nsenter\n");
+			// fprintf(stdout, "missing zocker_pid env skip nsenter\n");
 			return;
 		}
 		char *zocker_cmd;
