@@ -26,4 +26,5 @@ func RemoveContainer(containerName string) {
 		log.Errorf("[RemoveContainer] remove container dir [%s] failed, err = %v", containerDir, err)
 		return
 	}
+	container.DeleteWorkSpace(containerInfo.Volume, containerName)
 }
