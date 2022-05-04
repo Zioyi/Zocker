@@ -75,7 +75,10 @@ var runCommand = cli.Command{
 			CpuSet:      context.String("cpuset"),
 		}
 		containerName := context.String("name")
-		Run(tty, cmdArray, resConf, volume, containerName)
+
+		imageName := cmdArray[0]
+		cmdArray = cmdArray[1:]
+		Run(tty, cmdArray, resConf, volume, containerName, imageName)
 		return nil
 	},
 }
@@ -84,11 +87,12 @@ var commitCommand = cli.Command{
 	Name:  "commit",
 	Usage: "commit a container into image",
 	Action: func(context *cli.Context) error {
-		if len(context.Args()) < 1 {
-			return fmt.Errorf("mssing container name")
+		if len(context.Args()) < 2 {
+			return fmt.Errorf("mssing container name and image name")
 		}
-		imageName := context.Args().Get(0)
-		commitContainer(imageName)
+		containerName := context.Args().Get(0)
+		imageName := context.Args().Get(1)
+		commitContainer(containerName, imageName)
 		return nil
 	},
 }
