@@ -39,6 +39,8 @@ func ExecContainer(containerName string, commandArray []string) {
 	if err != nil {
 		log.Errorf("Exec container setnv %s error %v", ENV_EXEC_CMD, err)
 	}
+	envs := getEnvsByPid(pid)
+	cmd.Env = append(os.Environ(), envs...)
 
 	if err := cmd.Run(); err != nil {
 		log.Errorf("Exec container %s error %v", containerName, err)
@@ -58,4 +60,16 @@ func getContainerPidByName(containerName string) (string, error) {
 		return "", err
 	}
 	return containerInfo.Pid, nil
+}
+
+func getEnvsByPid(pid string) []string {
+	// 进程环境变量保存的位置 /proc/PID/environ
+	path := fmt.Sprintf("/proc/%s/environ", pid)
+	contentBytes, err := ioutil.ReadFile(path)
+	if err != nil {
+		log.Errorf("[getEnvsByPid] read environ file [%s] failed, err = %v", path, err)
+	}
+
+	envs := strings.Split(string(contentBytes), "\u0000")
+	return envs
 }
